@@ -2,9 +2,7 @@
 
 什么是 lock-free 队列？
 
-lock-free 指的是在并发情况下，队列不通过锁来实现出队和入队操作。
-
-一般情况下我们可以使用排他锁来实现队列的并发访问，但是锁会出现死锁的情况，同时性能也不够好（加锁和释放会耗时）。
+lock-free 指的是在并发情况下，队列不通过锁来实现出队和入队操作。一般情况下我们可以使用排他锁来实现队列的并发访问，但是锁会出现死锁的情况，同时性能也不够好（加锁和释放会耗时）。
 
 lock-free 算法由 Maged M. Michael 和 Michael L. Scott 在1996年的论文
 [《 Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms》](https://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf)
@@ -70,19 +68,32 @@ structure pointer_t {ptr: pointer to node_t, count: unsigned integer}
  D20:   return TRUE                   // Queue was not empty, dequeue succeeded
 ```
 
-伪码中 CAS 指的是 “compare and swap”，是现代CPU的指令集之一，通过原子操作来更改内存中的值。
+伪码中 CAS 指的是 “compare and swap”，是现代CPU的指令集之一，通过原子操作来更改内存中的值。CAS通过比较 addr 位置的值和 old 的值，如果相等将 addr 位置的值更新为 new ，否则不更新。
 
 go语言可以通过atomic包来实现：
 ```
 atomic.CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapped bool)
 ```
 
-CAS通过比较addr位置的值和old的值，如果相等将addr位置的值更新为new，否则不更新。
+
 
 ### benchmark
 
-![性能比较](https://shiniao.fun/images/20200923162432.png)
+```shell
+go test -run=XXX -bench=Queue | ~/go/bin/benchgraph
+```
 
+> bengraph 将 benchmark 结果以图表的形式显示：
+> ```
+> git clone https://github.com/shiniao/benchgraph.git
+> cd benchgraph
+> go get ./
+> go install
+> ```
 
+性能比较结果：
 
+![性能比较](https://shiniao.fun/images/benchmark.png)
+
+从图中可以看出lock-free 算法性能明显优于 lock 算法，并且很稳定。
 

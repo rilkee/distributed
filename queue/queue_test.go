@@ -42,8 +42,8 @@ func TestQueue(t *testing.T) {
 
 func BenchmarkQueue(b *testing.B) {
 	queues := map[string]Queue{
-		"lock-free-queue": NewLFQueue(),
-		"lock-queue":      NewLKQueue(0),
+		"lockFreeQueue": NewLFQueue(),
+		"lockQueue":      NewLKQueue(0),
 	}
 
 	length := 1 << 12
@@ -55,7 +55,7 @@ func BenchmarkQueue(b *testing.B) {
 	for _, cpus := range []int{4, 8, 16, 32, 64} {
 		runtime.GOMAXPROCS(cpus)
 		for name, q := range queues {
-			b.Run(name+"#"+strconv.Itoa(cpus), func(b *testing.B) {
+			b.Run(name+"_"+strconv.Itoa(cpus), func(b *testing.B) {
 				b.ResetTimer()
 
 				var c int64
